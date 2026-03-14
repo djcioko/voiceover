@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIMP Web-Master Radio Pro</title>
+    <title>VOICE OVER MASTER PRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root { --bg-color: #121212; --panel-color: #1e1e1e; --accent-color: #ff8c00; --text-color: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
         .player-container { background: var(--panel-color); border: 2px solid #333; border-radius: 12px; padding: 20px; width: 100%; max-width: 950px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .header { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 20px; text-align: center; font-weight: bold; color: var(--accent-color); font-size: 22px; }
+        .header { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 20px; text-align: center; font-weight: bold; color: var(--accent-color); font-size: 24px; text-transform: uppercase; }
         .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 8px; background: #161616; cursor: pointer; margin-bottom: 15px; }
         .vu-meter { height: 15px; background: #000; width: 100%; margin: 10px 0; border-radius: 10px; overflow: hidden; }
         .vu-fill { height: 100%; width: 0%; background: linear-gradient(to right, #00ff00, #ffff00, #ff0000); transition: 0.05s; }
@@ -18,10 +18,10 @@
         .effect-group { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #333; }
         label { display: block; font-size: 11px; color: var(--accent-color); font-weight: bold; margin-top: 8px; text-transform: uppercase; }
         .val { float: right; color: #00ff00; font-family: monospace; }
-        input[type=range] { width: 100%; margin: 5px 0; accent-color: var(--accent-color); }
-        select { width: 100%; background: #333; color: white; border: 1px solid #555; padding: 10px; border-radius: 5px; margin-top: 5px; cursor: pointer; }
+        input[type=range] { width: 100%; margin: 5px 0; accent-color: var(--accent-color); cursor: pointer; }
+        select { width: 100%; background: #333; color: white; border: 1px solid #555; padding: 10px; border-radius: 5px; margin-top: 5px; cursor: pointer; font-weight: bold; }
         .action-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; }
-        button { padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; background: #444; color: white; }
+        button { padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; background: #444; color: white; text-transform: uppercase; }
         button:hover { background: var(--accent-color); color: black; }
         canvas { width: 100%; height: 60px; background: #000; border-radius: 5px; }
     </style>
@@ -29,9 +29,9 @@
 <body>
 
 <div class="player-container">
-    <div class="header">🏗️ VOICE-OVER MASTER PRO</div>
+    <div class="header">🎙️ VOICE OVER MASTER PRO</div>
     <div class="drop-zone" onclick="document.getElementById('audioUpload').click()">
-        <b>CLICK SAU DRAG AUDIO AICI</b>
+        <b>ÎNCARCĂ FIȘIERUL AUDIO (CLICK SAU DRAG)</b>
         <input type="file" id="audioUpload" accept="audio/*" style="display:none">
     </div>
     <canvas id="waveform"></canvas>
@@ -48,26 +48,26 @@
         </div>
 
         <div class="effect-group">
-            <label>REVERB (SALA) <span class="val" id="rV">0%</span></label>
+            <label>REVERB (ECOU SALĂ) <span class="val" id="rV">0</span></label>
             <input type="range" id="reverb" min="0" max="1" step="0.1" value="0">
-            <label>ECHO (DELAY) <span class="val" id="eV">0%</span></label>
+            <label>ECHO (DELAY) <span class="val" id="eV">0</span></label>
             <input type="range" id="echo" min="0" max="0.8" step="0.1" value="0">
-            <label>MASTER VOLUME <span class="val" id="volV">1.0</span></label>
+            <label>MASTER FADER <span class="val" id="volV">1.0</span></label>
             <input type="range" id="volume" min="0" max="1.5" step="0.01" value="1.0">
         </div>
 
         <div class="effect-group">
-            <label>PRESET VOCE</label>
+            <label>PRESET VOCE ACTIV</label>
             <select id="preset">
                 <option value="normal">🎵 Voce Normală</option>
-                <option value="radio">🎙️ Radio FM (Compresie+Bass)</option>
-                <option value="megafon">📢 Megafon Șantier (High Mid)</option>
-                <option value="telefon">📱 Apel Telefonic (Lo-Fi)</option>
-                <option value="santier">👷 Inginer (Serios/Gros)</option>
-                <option value="vader">👹 Darth Vader</option>
+                <option value="radio">🎙️ Radio FM Professional</option>
+                <option value="megafon">📢 Megafon Șantier</option>
+                <option value="telefon">📱 Voce Telefon</option>
+                <option value="santier">👷 Inginer (Voce Groasă)</option>
+                <option value="vader">👹 Efect Darth Vader</option>
             </select>
-            <label>PITCH (TONALITATE) <span class="val" id="pV">0</span></label>
-            <input type="range" id="pitch" min="-10" max="10" value="0">
+            <label>PITCH (GROSIME) <span class="val" id="pV">0</span></label>
+            <input type="range" id="pitch" min="-12" max="12" value="0">
             <label>VITEZA <span class="val" id="sV">1.0x</span></label>
             <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
         </div>
@@ -75,124 +75,126 @@
 
     <div class="action-btns">
         <button id="playBtn" style="background:#ff8c00; color:black">▶ PLAY / STOP</button>
-        <button onclick="saveFile()">💾 SALVEAZĂ .CUE</button>
+        <button onclick="detectSilence()" style="background:#6c63ff">⚡ DETECT CUES</button>
+        <button onclick="saveCueFile()">💾 SAVE .CUE</button>
         <button onclick="exportZip()" style="background:#007bff">📦 EXPORT ZIP</button>
     </div>
+    <div id="cueContainer" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
 </div>
 
 <script>
-let ctx, source, buffer, analyzer, gainNode, bNode, mNode, hNode, reverbNode, echoNode;
-let isPlaying = false;
+let ctx, source, buffer, analyzer, gainNode, bNode, mNode, hNode, echoNode, feedbackNode;
+let isPlaying = false, cuePoints = [], fileName = '';
 
-// Actualizare afisaj valori
-const upd = (id, target) => {
-    document.getElementById(id).oninput = (e) => {
-        document.getElementById(target).textContent = e.target.value + (id === 'volume' ? '' : (id === 'speed' ? 'x' : ''));
-        if(isPlaying) updateNodes();
+// Update visual labels and real-time parameters
+const ids = ['bass','mids','highs','reverb','echo','volume','pitch','speed'];
+ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.oninput = () => {
+        document.getElementById(id + (id === 'volume' ? 'V' : (id === 'speed' ? 'V' : (id === 'pitch' ? 'V' : (id === 'reverb' ? 'V' : (id === 'echo' ? 'V' : 'V')))))).textContent = el.value;
+        if(isPlaying) updateLiveParams();
     };
-};
-upd('bass','bV'); upd('mids','mV'); upd('highs','hV'); upd('reverb','rV'); upd('echo','eV'); upd('volume','volV'); upd('pitch','pV'); upd('speed','sV');
+});
 
 document.getElementById('audioUpload').onchange = async (e) => {
     const file = e.target.files[0];
     if(!file) return;
+    fileName = file.name;
     ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const arrayBuffer = await file.arrayBuffer();
-    buffer = await ctx.decodeAudioData(arrayBuffer);
+    const ab = await file.arrayBuffer();
+    buffer = await ctx.decodeAudioData(ab);
     drawWave();
 };
 
-function updateNodes() {
+function updateLiveParams() {
     if(!isPlaying) return;
-    bNode.gain.value = document.getElementById('bass').value;
-    mNode.gain.value = document.getElementById('mids').value;
-    hNode.gain.value = document.getElementById('highs').value;
-    gainNode.gain.value = document.getElementById('volume').value;
-    source.playbackRate.value = document.getElementById('speed').value * Math.pow(2, document.getElementById('pitch').value / 12);
+    bNode.gain.value = parseFloat(document.getElementById('bass').value);
+    mNode.gain.value = parseFloat(document.getElementById('mids').value);
+    hNode.gain.value = parseFloat(document.getElementById('highs').value);
+    gainNode.gain.value = parseFloat(document.getElementById('volume').value);
+    
+    const p = parseFloat(document.getElementById('pitch').value);
+    const s = parseFloat(document.getElementById('speed').value);
+    source.playbackRate.value = s * Math.pow(2, p / 12);
 }
 
-async function play() {
+function play(startTime = 0) {
     if(isPlaying) { stop(); return; }
-    if(!buffer) return alert("Încarcă un fișier!");
+    if(!buffer) return;
 
     source = ctx.createBufferSource();
     source.buffer = buffer;
 
-    // EQ Nodes
+    // EQ
     bNode = ctx.createBiquadFilter(); bNode.type = "lowshelf"; bNode.frequency.value = 250;
-    mNode = ctx.createBiquadFilter(); mNode.type = "peaking"; mNode.frequency.value = 1500; mNode.Q.value = 1;
+    mNode = ctx.createBiquadFilter(); mNode.type = "peaking"; mNode.frequency.value = 1500;
     hNode = ctx.createBiquadFilter(); hNode.type = "highshelf"; hNode.frequency.value = 4000;
 
-    // Reverb
-    reverbNode = ctx.createConvolver();
-    const revVal = document.getElementById('reverb').value;
-    if(revVal > 0) reverbNode.buffer = createImpulse(2, revVal);
+    // Echo (Delay)
+    echoNode = ctx.createDelay();
+    echoNode.delayTime.value = 0.3;
+    feedbackNode = ctx.createGain();
+    const echoAmt = parseFloat(document.getElementById('echo').value);
+    feedbackNode.gain.value = echoAmt;
 
-    // Gain & Analyzer
     gainNode = ctx.createGain();
     analyzer = ctx.createAnalyser();
 
-    // Connection Chain
+    // Chain
     source.connect(bNode);
     bNode.connect(mNode);
     mNode.connect(hNode);
     hNode.connect(gainNode);
-    
-    if(revVal > 0) {
-        gainNode.connect(reverbNode);
-        reverbNode.connect(ctx.destination);
+
+    if(echoAmt > 0) {
+        gainNode.connect(echoNode);
+        echoNode.connect(feedbackNode);
+        feedbackNode.connect(echoNode);
+        echoNode.connect(ctx.destination);
     }
 
     gainNode.connect(analyzer);
     analyzer.connect(ctx.destination);
 
-    updateNodes();
-    source.start(0);
+    updateLiveParams();
+    source.start(0, startTime);
     isPlaying = true;
     document.getElementById('playBtn').textContent = "⏹ STOP";
     drawVU();
 }
 
 function stop() {
-    if(source) source.stop();
+    if(source) { source.stop(); source.disconnect(); }
     isPlaying = false;
     document.getElementById('playBtn').textContent = "▶ PLAY";
 }
 
-document.getElementById('playBtn').onclick = play;
+document.getElementById('playBtn').onclick = () => play(0);
 
+// REPARARE PRESETURI: Acum forțează update-ul nodurilor
 document.getElementById('preset').onchange = (e) => {
     const p = e.target.value;
-    const s = (id) => document.getElementById(id);
-    const set = (b,m,h,pit) => { s('bass').value=b; s('mids').value=m; s('highs').value=h; s('pitch').value=pit; };
-    
-    if(p === 'radio') set(12, 2, 5, 0);
-    if(p === 'megafon') set(-15, 15, 10, 1);
-    if(p === 'telefon') set(-20, 10, -10, 0);
-    if(p === 'santier') set(8, 0, -2, -2);
-    if(p === 'vader') set(5, 0, 0, -5);
-    if(p === 'normal') set(0, 0, 0, 0);
-    
-    // Trigger update labels
-    ['bass','mids','highs','pitch'].forEach(id => s(id).dispatchEvent(new Event('input')));
-};
+    const s = (id, val) => {
+        const el = document.getElementById(id);
+        el.value = val;
+        // Trimitem manual evenimentul de input pentru a actualiza textul si sunetul
+        el.dispatchEvent(new Event('input'));
+    };
 
-function createImpulse(seconds, decay) {
-    const len = ctx.sampleRate * seconds;
-    const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
-    for(let c=0; c<2; c++) {
-        const data = impulse.getChannelData(c);
-        for(let i=0; i<len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-    }
-    return impulse;
-}
+    if(p === 'radio') { s('bass', 12); s('mids', 2); s('highs', 8); s('pitch', 0); }
+    else if(p === 'megafon') { s('bass', -18); s('mids', 18); s('highs', 12); s('pitch', 2); }
+    else if(p === 'telefon') { s('bass', -20); s('mids', 12); s('highs', -15); s('pitch', 1); }
+    else if(p === 'santier') { s('bass', 10); s('mids', 0); s('highs', -5); s('pitch', -3); }
+    else if(p === 'vader') { s('bass', 8); s('mids', 0); s('highs', 0); s('pitch', -7); }
+    else { s('bass', 0); s('mids', 0); s('highs', 0); s('pitch', 0); }
+};
 
 function drawVU() {
     if(!isPlaying) return;
     const d = new Uint8Array(analyzer.frequencyBinCount);
     analyzer.getByteFrequencyData(d);
     let avg = d.reduce((a,b) => a+b, 0) / d.length;
-    document.getElementById('vuFill').style.width = Math.min(100, avg * 1.8) + "%";
+    document.getElementById('vuFill').style.width = Math.min(100, avg * 2) + "%";
     requestAnimationFrame(drawVU);
 }
 
@@ -212,6 +214,29 @@ function drawWave() {
         ctxC.moveTo(i, (1+min)*30); ctxC.lineTo(i, (1+max)*30);
     }
     ctxC.stroke();
+}
+
+function detectSilence() {
+    if(!buffer) return;
+    const data = buffer.getChannelData(0), sr = buffer.sampleRate;
+    cuePoints = [];
+    for(let i=0; i<data.length; i+=sr/2) {
+        if(Math.abs(data[i]) < 0.02 && cuePoints.length < 12) cuePoints.push(i/sr);
+    }
+    const container = document.getElementById('cueContainer');
+    container.innerHTML = '';
+    cuePoints.forEach((t, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = `CUE ${i+1} (${t.toFixed(1)}s)`;
+        btn.onclick = () => { stop(); play(t); };
+        container.appendChild(btn);
+    });
+}
+
+function saveCueFile() {
+    let txt = `FILE "${fileName}" MP3\n` + cuePoints.map((t,i)=>`  TRACK ${i+1} AUDIO\n    INDEX 01 ${Math.floor(t/60)}:${Math.floor(t%60)}:00`).join('\n');
+    const b = new Blob([txt], {type:'text/plain'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='voiceover.cue'; a.click();
 }
 </script>
 </body>
