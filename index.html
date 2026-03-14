@@ -3,254 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIMP Web-Master Pro</title>
+    <title>AIMP Web-Master Radio Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        :root { --bg-color: #1a1a1a; --panel-color: #2d2d2d; --accent-color: #ff8c00; --text-color: #e0e0e0; }
+        :root { --bg-color: #121212; --panel-color: #1e1e1e; --accent-color: #ff8c00; --text-color: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .player-container { background: var(--panel-color); border: 2px solid #444; border-radius: 8px; padding: 20px; width: 100%; max-width: 900px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 20px; }
-        .header span { font-weight: bold; color: var(--accent-color); font-size: 20px; }
-        .drop-zone { border: 3px dashed var(--accent-color); padding: 30px; text-align: center; border-radius: 8px; background: #222; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
-        .drop-zone:hover { background: #333; }
-        .vu-meter { height: 25px; background: #000; width: 100%; margin: 15px 0; border-radius: 3px; overflow: hidden; position: relative; }
-        .vu-fill { height: 100%; width: 0%; background: linear-gradient(to right, #00ff00, #ffff00, #ff0000); transition: width 0.05s; }
-        .grid-effects { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
-        .effect-group { background: #333; padding: 15px; border-radius: 5px; border: 1px solid #444; }
-        label { display: block; font-size: 11px; color: var(--accent-color); font-weight: bold; margin-top: 10px; }
-        .value-display { float: right; color: #aaa; font-size: 10px; }
-        input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent-color); }
-        select { width: 100%; margin-top: 5px; background: #444; color: white; border: 1px solid #555; padding: 8px; border-radius: 3px; }
-        .cue-buttons-container { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; background: #000; padding: 15px; border-radius: 5px; }
-        .cue-btn { background: linear-gradient(135deg, #444 0%, #333 100%); color: white; border: 2px solid var(--accent-color); padding: 15px 10px; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .action-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
-        button { background: #555; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.3s; }
-        button:hover { background: var(--accent-color); }
-        .status-message { background: #333; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 3px solid var(--accent-color); font-size: 12px; display: none; }
-        .status-message.show { display: block; }
-        canvas { width: 100%; height: 80px; background: #000; border-radius: 5px; margin: 15px 0; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+        .player-container { background: var(--panel-color); border: 2px solid #333; border-radius: 12px; padding: 20px; width: 100%; max-width: 950px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .header { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 20px; text-align: center; font-weight: bold; color: var(--accent-color); font-size: 22px; }
+        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 8px; background: #161616; cursor: pointer; margin-bottom: 15px; }
+        .vu-meter { height: 15px; background: #000; width: 100%; margin: 10px 0; border-radius: 10px; overflow: hidden; }
+        .vu-fill { height: 100%; width: 0%; background: linear-gradient(to right, #00ff00, #ffff00, #ff0000); transition: 0.05s; }
+        .grid-effects { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .effect-group { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        label { display: block; font-size: 11px; color: var(--accent-color); font-weight: bold; margin-top: 8px; text-transform: uppercase; }
+        .val { float: right; color: #00ff00; font-family: monospace; }
+        input[type=range] { width: 100%; margin: 5px 0; accent-color: var(--accent-color); }
+        select { width: 100%; background: #333; color: white; border: 1px solid #555; padding: 10px; border-radius: 5px; margin-top: 5px; cursor: pointer; }
+        .action-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; }
+        button { padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; background: #444; color: white; }
+        button:hover { background: var(--accent-color); color: black; }
+        canvas { width: 100%; height: 60px; background: #000; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="player-container">
-    <div class="header"><span>🎵 AIMP WEB-MASTER RADIO PRO</span></div>
-    <div class="drop-zone" id="dropZone">
-        <div style="font-size: 30px;">📂</div>
-        <b>DRAG & DROP AUDIO</b>
+    <div class="header">🏗️ VOICE-OVER MASTER PRO</div>
+    <div class="drop-zone" onclick="document.getElementById('audioUpload').click()">
+        <b>CLICK SAU DRAG AUDIO AICI</b>
         <input type="file" id="audioUpload" accept="audio/*" style="display:none">
     </div>
-    <div class="status-message" id="statusMsg"></div>
     <canvas id="waveform"></canvas>
     <div class="vu-meter"><div id="vuFill" class="vu-fill"></div></div>
 
     <div class="grid-effects">
         <div class="effect-group">
-            <label>ECHO <span class="value-display" id="echoVal">0%</span></label>
-            <input type="range" id="echo" min="0" max="0.7" step="0.05" value="0">
-            <label>REVERB <span class="value-display" id="reverbVal">0%</span></label>
-            <input type="range" id="reverb" min="0" max="0.7" step="0.05" value="0">
-            <label>RADIO COMPRESSOR (PUNCH)</label>
-            <input type="range" id="compRatio" min="1" max="20" step="1" value="4">
+            <label>JOASE (BASS) <span class="val" id="bV">0dB</span></label>
+            <input type="range" id="bass" min="-20" max="20" value="0">
+            <label>MEDII (MIDS) <span class="val" id="mV">0dB</span></label>
+            <input type="range" id="mids" min="-20" max="20" value="0">
+            <label>INALTE (TREBLE) <span class="val" id="hV">0dB</span></label>
+            <input type="range" id="highs" min="-20" max="20" value="0">
         </div>
+
         <div class="effect-group">
-            <label>SPEED <span class="value-display" id="speedVal">1.0x</span></label>
-            <input type="range" id="speed" min="0.5" max="2" step="0.05" value="1">
-            <label>PITCH <span class="value-display" id="pitchVal">0</span></label>
-            <input type="range" id="pitch" min="-12" max="12" step="1" value="0">
-            <label>MASTER VOLUME <span class="value-display" id="volVal">80%</span></label>
-            <input type="range" id="volume" min="0" max="1.5" step="0.05" value="0.8">
+            <label>REVERB (SALA) <span class="val" id="rV">0%</span></label>
+            <input type="range" id="reverb" min="0" max="1" step="0.1" value="0">
+            <label>ECHO (DELAY) <span class="val" id="eV">0%</span></label>
+            <input type="range" id="echo" min="0" max="0.8" step="0.1" value="0">
+            <label>MASTER VOLUME <span class="val" id="volV">1.0</span></label>
+            <input type="range" id="volume" min="0" max="1.5" step="0.01" value="1.0">
         </div>
+
         <div class="effect-group">
-            <label>BASS BOOST <span class="value-display" id="bassVal">0 dB</span></label>
-            <input type="range" id="bass" min="0" max="20" step="1" value="0">
-            <label>VOICE PRESETS</label>
-            <select id="voicePreset">
-                <option value="1|0">🎵 Normal</option>
-                <option value="0.9|-2">👷 Șantier (Gros/Serios)</option>
-                <option value="0.8|-1">🎙️ Radio Podcast</option>
-                <option value="1.1|2">📢 Anunț Megafoane</option>
-                <option value="1.2|1">📱 Telephone Filter</option>
-                <option value="0.7|-4">👹 Darth Vader</option>
-                <option value="1.5|5">🐹 Minion</option>
+            <label>PRESET VOCE</label>
+            <select id="preset">
+                <option value="normal">🎵 Voce Normală</option>
+                <option value="radio">🎙️ Radio FM (Compresie+Bass)</option>
+                <option value="megafon">📢 Megafon Șantier (High Mid)</option>
+                <option value="telefon">📱 Apel Telefonic (Lo-Fi)</option>
+                <option value="santier">👷 Inginer (Serios/Gros)</option>
+                <option value="vader">👹 Darth Vader</option>
             </select>
+            <label>PITCH (TONALITATE) <span class="val" id="pV">0</span></label>
+            <input type="range" id="pitch" min="-10" max="10" value="0">
+            <label>VITEZA <span class="val" id="sV">1.0x</span></label>
+            <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
         </div>
     </div>
 
-    <div id="cueContainer" class="cue-buttons-container"></div>
-
     <div class="action-btns">
-        <button onclick="detectSilence()" style="background:#6c63ff">⚡ Detect Cues</button>
-        <button onclick="saveCueFile()" style="background:#2e7d32">💾 Save .CUE</button>
-        <button onclick="exportZip()" style="background:#0277bd">📦 Export ZIP</button>
-        <button id="playBtn" style="background:var(--accent-color)">▶ Play / Stop</button>
+        <button id="playBtn" style="background:#ff8c00; color:black">▶ PLAY / STOP</button>
+        <button onclick="saveFile()">💾 SALVEAZĂ .CUE</button>
+        <button onclick="exportZip()" style="background:#007bff">📦 EXPORT ZIP</button>
     </div>
 </div>
 
 <script>
-    let audioCtx, source, buffer, analyzer, gainNode, compressor;
-    let cuePoints = [], isPlaying = false, currentTime = 0, fileName = '';
+let ctx, source, buffer, analyzer, gainNode, bNode, mNode, hNode, reverbNode, echoNode;
+let isPlaying = false;
 
-    // Fix pentru Slider Display
-    const sliders = { echo:'echoVal', reverb:'reverbVal', speed:'speedVal', pitch:'pitchVal', volume:'volVal', bass:'bassVal' };
-    Object.keys(sliders).forEach(id => {
-        document.getElementById(id).oninput = (e) => {
-            let v = e.target.value;
-            document.getElementById(sliders[id]).textContent = (id==='speed') ? v+'x' : (id==='bass') ? v+' dB' : Math.round(v*100)+'%';
-        };
-    });
-
-    function showStatus(msg) {
-        const s = document.getElementById('statusMsg');
-        s.className = 'status-message show'; s.textContent = msg;
-        setTimeout(() => s.className = 'status-message', 4000);
-    }
-
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('audioUpload');
-    dropZone.onclick = () => fileInput.click();
-    fileInput.onchange = (e) => { if(e.target.files[0]) loadAudio(e.target.files[0]); };
-
-    async function loadAudio(file) {
-        fileName = file.name;
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const arrayBuffer = await file.arrayBuffer();
-        buffer = await audioCtx.decodeAudioData(arrayBuffer);
-        showStatus('✅ Audio Încărcat: ' + fileName);
-        drawWaveform();
-    }
-
-    function drawWaveform() {
-        const canvas = document.getElementById('waveform');
-        const ctx = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth;
-        const data = buffer.getChannelData(0);
-        const step = Math.ceil(data.length / canvas.width);
-        const amp = canvas.height / 2;
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.strokeStyle = '#ff8c00'; ctx.beginPath();
-        for(let i=0; i<canvas.width; i++) {
-            let min=1, max=-1;
-            for(let j=0; j<step; j++) {
-                const dat = data[(i*step)+j];
-                if(dat<min) min=dat; if(dat>max) max=dat;
-            }
-            ctx.moveTo(i, (1+min)*amp); ctx.lineTo(i, (1+max)*amp);
-        }
-        ctx.stroke();
-    }
-
-    function playFrom(time) {
-        if(isPlaying) stopAudio();
-        if(!buffer) return;
-
-        source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        
-        // Pitch & Speed
-        const sVal = parseFloat(document.getElementById('speed').value);
-        const pVal = parseFloat(document.getElementById('pitch').value);
-        source.playbackRate.value = sVal * Math.pow(2, pVal / 12);
-
-        // 1. Bass Filter
-        const bass = audioCtx.createBiquadFilter();
-        bass.type = "lowshelf"; bass.frequency.value = 200;
-        bass.gain.value = parseFloat(document.getElementById('bass').value);
-
-        // 2. Radio Compressor (PUNCH)
-        compressor = audioCtx.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
-        compressor.knee.setValueAtTime(40, audioCtx.currentTime);
-        compressor.ratio.setValueAtTime(document.getElementById('compRatio').value, audioCtx.currentTime);
-        compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
-        compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
-
-        // 3. Gain & Analyzer
-        gainNode = audioCtx.createGain();
-        gainNode.gain.value = parseFloat(document.getElementById('volume').value);
-        analyzer = audioCtx.createAnalyser();
-
-        // 4. Echo Node
-        const delay = audioCtx.createDelay();
-        const feedback = audioCtx.createGain();
-        const echoAmt = parseFloat(document.getElementById('echo').value);
-        delay.delayTime.value = 0.3;
-        feedback.gain.value = echoAmt;
-
-        // Connections (Safe chain to prevent infinite loop)
-        source.connect(bass);
-        bass.connect(compressor);
-        compressor.connect(gainNode);
-        
-        if(echoAmt > 0) {
-            gainNode.connect(delay);
-            delay.connect(feedback);
-            feedback.connect(delay);
-            delay.connect(audioCtx.destination);
-        }
-
-        gainNode.connect(analyzer);
-        analyzer.connect(audioCtx.destination);
-
-        source.start(0, time);
-        isPlaying = true;
-        updateVU();
-    }
-
-    function stopAudio() {
-        if(source) { source.stop(); source.disconnect(); }
-        if(gainNode) gainNode.disconnect();
-        isPlaying = false;
-    }
-
-    function updateVU() {
-        if(!isPlaying || !analyzer) return;
-        const data = new Uint8Array(analyzer.frequencyBinCount);
-        analyzer.getByteFrequencyData(data);
-        let sum = data.reduce((a,b) => a+b, 0);
-        document.getElementById('vuFill').style.width = (sum/data.length) * 1.5 + '%';
-        requestAnimationFrame(updateVU);
-    }
-
-    document.getElementById('playBtn').onclick = () => isPlaying ? stopAudio() : playFrom(0);
-
-    document.getElementById('voicePreset').onchange = (e) => {
-        const [s, p] = e.target.value.split('|');
-        document.getElementById('speed').value = s;
-        document.getElementById('pitch').value = p;
-        document.getElementById('speedVal').textContent = s + 'x';
-        document.getElementById('pitchVal').textContent = p;
+// Actualizare afisaj valori
+const upd = (id, target) => {
+    document.getElementById(id).oninput = (e) => {
+        document.getElementById(target).textContent = e.target.value + (id === 'volume' ? '' : (id === 'speed' ? 'x' : ''));
+        if(isPlaying) updateNodes();
     };
+};
+upd('bass','bV'); upd('mids','mV'); upd('highs','hV'); upd('reverb','rV'); upd('echo','eV'); upd('volume','volV'); upd('pitch','pV'); upd('speed','sV');
 
-    function detectSilence() {
-        if(!buffer) return showStatus('❌ Încarcă audio!');
-        showStatus('🔍 Detectez pauzele...');
-        const data = buffer.getChannelData(0), sr = buffer.sampleRate;
-        cuePoints = [];
-        for(let i=0; i<data.length; i+=sr/5) {
-            if(Math.abs(data[Math.floor(i)]) < 0.02) {
-                let t = i/sr; if(cuePoints.length < 12) cuePoints.push(t);
-            }
+document.getElementById('audioUpload').onchange = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const arrayBuffer = await file.arrayBuffer();
+    buffer = await ctx.decodeAudioData(arrayBuffer);
+    drawWave();
+};
+
+function updateNodes() {
+    if(!isPlaying) return;
+    bNode.gain.value = document.getElementById('bass').value;
+    mNode.gain.value = document.getElementById('mids').value;
+    hNode.gain.value = document.getElementById('highs').value;
+    gainNode.gain.value = document.getElementById('volume').value;
+    source.playbackRate.value = document.getElementById('speed').value * Math.pow(2, document.getElementById('pitch').value / 12);
+}
+
+async function play() {
+    if(isPlaying) { stop(); return; }
+    if(!buffer) return alert("Încarcă un fișier!");
+
+    source = ctx.createBufferSource();
+    source.buffer = buffer;
+
+    // EQ Nodes
+    bNode = ctx.createBiquadFilter(); bNode.type = "lowshelf"; bNode.frequency.value = 250;
+    mNode = ctx.createBiquadFilter(); mNode.type = "peaking"; mNode.frequency.value = 1500; mNode.Q.value = 1;
+    hNode = ctx.createBiquadFilter(); hNode.type = "highshelf"; hNode.frequency.value = 4000;
+
+    // Reverb
+    reverbNode = ctx.createConvolver();
+    const revVal = document.getElementById('reverb').value;
+    if(revVal > 0) reverbNode.buffer = createImpulse(2, revVal);
+
+    // Gain & Analyzer
+    gainNode = ctx.createGain();
+    analyzer = ctx.createAnalyser();
+
+    // Connection Chain
+    source.connect(bNode);
+    bNode.connect(mNode);
+    mNode.connect(hNode);
+    hNode.connect(gainNode);
+    
+    if(revVal > 0) {
+        gainNode.connect(reverbNode);
+        reverbNode.connect(ctx.destination);
+    }
+
+    gainNode.connect(analyzer);
+    analyzer.connect(ctx.destination);
+
+    updateNodes();
+    source.start(0);
+    isPlaying = true;
+    document.getElementById('playBtn').textContent = "⏹ STOP";
+    drawVU();
+}
+
+function stop() {
+    if(source) source.stop();
+    isPlaying = false;
+    document.getElementById('playBtn').textContent = "▶ PLAY";
+}
+
+document.getElementById('playBtn').onclick = play;
+
+document.getElementById('preset').onchange = (e) => {
+    const p = e.target.value;
+    const s = (id) => document.getElementById(id);
+    const set = (b,m,h,pit) => { s('bass').value=b; s('mids').value=m; s('highs').value=h; s('pitch').value=pit; };
+    
+    if(p === 'radio') set(12, 2, 5, 0);
+    if(p === 'megafon') set(-15, 15, 10, 1);
+    if(p === 'telefon') set(-20, 10, -10, 0);
+    if(p === 'santier') set(8, 0, -2, -2);
+    if(p === 'vader') set(5, 0, 0, -5);
+    if(p === 'normal') set(0, 0, 0, 0);
+    
+    // Trigger update labels
+    ['bass','mids','highs','pitch'].forEach(id => s(id).dispatchEvent(new Event('input')));
+};
+
+function createImpulse(seconds, decay) {
+    const len = ctx.sampleRate * seconds;
+    const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(let c=0; c<2; c++) {
+        const data = impulse.getChannelData(c);
+        for(let i=0; i<len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return impulse;
+}
+
+function drawVU() {
+    if(!isPlaying) return;
+    const d = new Uint8Array(analyzer.frequencyBinCount);
+    analyzer.getByteFrequencyData(d);
+    let avg = d.reduce((a,b) => a+b, 0) / d.length;
+    document.getElementById('vuFill').style.width = Math.min(100, avg * 1.8) + "%";
+    requestAnimationFrame(drawVU);
+}
+
+function drawWave() {
+    const canvas = document.getElementById('waveform');
+    const ctxC = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    const data = buffer.getChannelData(0);
+    const step = Math.ceil(data.length / canvas.width);
+    ctxC.fillStyle = '#000'; ctxC.fillRect(0,0,canvas.width,60);
+    ctxC.strokeStyle = '#ff8c00'; ctxC.beginPath();
+    for(let i=0; i<canvas.width; i++) {
+        let min=1, max=-1;
+        for(let j=0; j<step; j++) {
+            const v = data[i*step+j]; if(v<min) min=v; if(v>max) max=v;
         }
-        renderCues();
+        ctxC.moveTo(i, (1+min)*30); ctxC.lineTo(i, (1+max)*30);
     }
-
-    function renderCues() {
-        const c = document.getElementById('cueContainer'); c.innerHTML = '';
-        cuePoints.forEach((t, i) => {
-            const b = document.createElement('button'); b.className = 'cue-btn';
-            b.innerHTML = `CUE ${i+1}<br><small>${t.toFixed(1)}s</small>`;
-            b.onclick = () => playFrom(t);
-            c.appendChild(b);
-        });
-    }
-
-    function saveCueFile() {
-        let txt = `FILE "${fileName}" MP3\n` + cuePoints.map((t,i)=>`  TRACK ${i+1}\n    INDEX 01 ${Math.floor(t/60)}:${Math.floor(t%60)}:00`).join('\n');
-        const blob = new Blob([txt], {type:'text/plain'});
-        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='audio.cue'; a.click();
-    }
+    ctxC.stroke();
+}
 </script>
 </body>
 </html>
