@@ -13,11 +13,7 @@
             --text-color: #e0e0e0;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
@@ -37,7 +33,7 @@
             padding: 20px;
             width: 100%;
             max-width: 900px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .header {
@@ -67,8 +63,7 @@
             transition: all 0.3s;
         }
 
-        .drop-zone:hover,
-        .drop-zone.drag-over {
+        .drop-zone:hover, .drop-zone.drag-over {
             background: #333;
             border-color: #ffa500;
         }
@@ -87,7 +82,7 @@
             border-radius: 3px;
             overflow: hidden;
         }
-
+        
         .vu-fill {
             height: 100%;
             width: 0%;
@@ -115,6 +110,15 @@
             box-shadow: 0 0 5px #000;
         }
 
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 24px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 3px;
+            border: none;
+        }
+
         .grid-effects {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -135,6 +139,10 @@
             color: var(--accent-color);
             font-weight: bold;
             margin-top: 10px;
+        }
+
+        .effect-group label:first-child {
+            margin-top: 0;
         }
 
         .value-display {
@@ -182,6 +190,13 @@
         .cue-btn:hover {
             background: linear-gradient(135deg, #555 0%, #444 100%);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+        }
+
+        .cue-btn:active {
+            background: var(--accent-color);
+            color: black;
+            transform: translateY(0);
         }
 
         .cue-time {
@@ -213,12 +228,17 @@
 
         button:hover {
             background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         .btn-detect { background: #6c63ff; }
         .btn-save { background: #2e7d32; }
         .btn-export { background: #0277bd; }
-        .btn-play { background: var(--accent-color); color: #000; }
+        .btn-play { background: var(--accent-color); }
 
         .status-message {
             background: #333;
@@ -230,8 +250,26 @@
             display: none;
         }
 
-        .status-message.show { display: block; }
+        .status-message.show {
+            display: block;
+        }
 
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--accent-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Waveform Canvas */
         canvas {
             width: 100%;
             height: 80px;
@@ -256,7 +294,9 @@
     </div>
 
     <div class="status-message" id="statusMsg"></div>
+
     <canvas id="waveform"></canvas>
+
     <div class="vu-meter"><div id="vuFill" class="vu-fill"></div></div>
 
     <div class="grid-effects">
@@ -270,7 +310,7 @@
             <label>FLANGER <span class="value-display" id="flangerVal">0%</span></label>
             <input type="range" id="flanger" min="0" max="10" step="0.5" value="0">
         </div>
-
+        
         <div class="effect-group">
             <label>SPEED <span class="value-display" id="speedVal">1.0x</span></label>
             <input type="range" id="speed" min="0.5" max="2" step="0.05" value="1">
@@ -281,7 +321,7 @@
             <label>VOLUME <span class="value-display" id="volVal">80%</span></label>
             <input type="range" id="volume" min="0" max="1" step="0.05" value="0.8">
         </div>
-
+        
         <div class="effect-group">
             <label>BASS BOOST <span class="value-display" id="bassVal">0 dB</span></label>
             <input type="range" id="bass" min="0" max="20" step="1" value="0">
@@ -317,12 +357,18 @@
     let cuePoints = [];
     let isPlaying = false;
     let currentTime = 0;
+    let animationId;
     let fileName = '';
 
-    // Actualizare etichete slidere
+    // Slider value updates
     const sliders = {
-        echo: 'echoVal', reverb: 'reverbVal', flanger: 'flangerVal',
-        speed: 'speedVal', pitch: 'pitchVal', volume: 'volVal', bass: 'bassVal'
+        echo: 'echoVal',
+        reverb: 'reverbVal',
+        flanger: 'flangerVal',
+        speed: 'speedVal',
+        pitch: 'pitchVal',
+        volume: 'volVal',
+        bass: 'bassVal'
     };
 
     Object.keys(sliders).forEach(id => {
@@ -330,41 +376,64 @@
         const display = document.getElementById(sliders[id]);
         slider.oninput = () => {
             let val = parseFloat(slider.value);
-            if (id === 'echo' || id === 'reverb') display.textContent = Math.round(val * 100) + '%';
-            else if (id === 'speed') display.textContent = val.toFixed(2) + 'x';
-            else if (id === 'volume') display.textContent = Math.round(val * 100) + '%';
-            else if (id === 'bass') display.textContent = val + ' dB';
-            else if (id === 'pitch') display.textContent = val > 0 ? '+' + val : val;
-            else if (id === 'flanger') display.textContent = val.toFixed(1);
+            if (id === 'echo' || id === 'reverb') {
+                display.textContent = Math.round(val * 100) + '%';
+            } else if (id === 'speed') {
+                display.textContent = val.toFixed(2) + 'x';
+            } else if (id === 'volume') {
+                display.textContent = Math.round(val * 100) + '%';
+            } else if (id === 'bass') {
+                display.textContent = val + ' dB';
+            } else if (id === 'pitch') {
+                display.textContent = val > 0 ? '+' + val : val;
+            } else if (id === 'flanger') {
+                display.textContent = val.toFixed(1);
+            }
         };
     });
 
+    // Status messages
     function showStatus(msg, loading = false) {
         const status = document.getElementById('statusMsg');
         status.className = 'status-message show';
-        status.innerHTML = msg + (loading ? ' <span class="loading"></span>' : '');
-        if (!loading) setTimeout(() => status.className = 'status-message', 5000);
+        status.innerHTML = msg + (loading ? '<span class="loading"></span>' : '');
+        if (!loading) {
+            setTimeout(() => status.className = 'status-message', 5000);
+        }
     }
 
-    // Gestionare Fișiere
+    // Drag & Drop + Click
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('audioUpload');
 
     dropZone.onclick = () => fileInput.click();
+
+    dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    };
+
+    dropZone.ondragleave = () => {
+        dropZone.classList.remove('drag-over');
+    };
+
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('audio/')) {
+            loadAudio(file);
+        } else {
+            showStatus('❌ Te rog selectează un fișier audio valid!');
+        }
+    };
+
     fileInput.onchange = (e) => {
         const file = e.target.files[0];
         if (file) loadAudio(file);
     };
 
-    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
-    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
-    dropZone.ondrop = (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('audio/')) loadAudio(file);
-    };
-
+    // Load Audio
     async function loadAudio(file) {
         showStatus('📂 Se încarcă: ' + file.name, true);
         fileName = file.name;
@@ -372,27 +441,33 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const arrayBuffer = await file.arrayBuffer();
             buffer = await audioCtx.decodeAudioData(arrayBuffer);
-            showStatus(`✅ Audio încărcat!`);
+            showStatus(`✅ Audio încărcat: ${file.name} (${buffer.duration.toFixed(1)}s, ${buffer.numberOfChannels}ch)`);
             drawWaveform();
         } catch (err) {
-            showStatus('❌ Eroare la decodare: ' + err.message);
+            showStatus('❌ Eroare: ' + err.message);
         }
     }
 
+    // Waveform visualization
     function drawWaveform() {
         const canvas = document.getElementById('waveform');
         const ctx = canvas.getContext('2d');
         canvas.width = canvas.offsetWidth;
+        canvas.height = 80;
+
         const data = buffer.getChannelData(0);
         const step = Math.ceil(data.length / canvas.width);
-        const amp = 40; 
+        const amp = canvas.height / 2;
 
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = '#ff8c00';
+        ctx.lineWidth = 1;
         ctx.beginPath();
+
         for (let i = 0; i < canvas.width; i++) {
-            let min = 1, max = -1;
+            let min = 1.0;
+            let max = -1.0;
             for (let j = 0; j < step; j++) {
                 const datum = data[(i * step) + j];
                 if (datum < min) min = datum;
@@ -404,82 +479,323 @@
         ctx.stroke();
     }
 
+    // Audio Engine with Effects
     function playFrom(time) {
         if (source) source.stop();
-        if (!buffer) return;
+        if (!buffer || !audioCtx) return;
 
         source = audioCtx.createBufferSource();
         source.buffer = buffer;
-        
-        // Effects
+        currentTime = time;
+
+        // Speed/Pitch
+        const speedVal = parseFloat(document.getElementById('speed').value);
+        const pitchVal = parseFloat(document.getElementById('pitch').value);
+        source.playbackRate.value = speedVal * Math.pow(2, pitchVal / 12);
+
+        // Bass Boost
+        const bassFilter = audioCtx.createBiquadFilter();
+        bassFilter.type = "lowshelf";
+        bassFilter.frequency.value = 200;
+        bassFilter.gain.value = parseFloat(document.getElementById('bass').value);
+
+        // Echo
+        const delayNode = audioCtx.createDelay();
+        const echoVal = parseFloat(document.getElementById('echo').value);
+        delayNode.delayTime.value = echoVal > 0 ? 0.3 : 0;
+        const feedbackNode = audioCtx.createGain();
+        feedbackNode.gain.value = echoVal;
+
+        // Reverb (simplified using multiple delays)
+        const reverbVal = parseFloat(document.getElementById('reverb').value);
+        const reverbDelay1 = audioCtx.createDelay();
+        reverbDelay1.delayTime.value = 0.03;
+        const reverbDelay2 = audioCtx.createDelay();
+        reverbDelay2.delayTime.value = 0.05;
+        const reverbGain = audioCtx.createGain();
+        reverbGain.gain.value = reverbVal;
+
+        // Flanger (LFO modulated delay)
+        const flangerDelay = audioCtx.createDelay();
+        flangerDelay.delayTime.value = 0.005;
+        const flangerLFO = audioCtx.createOscillator();
+        const flangerVal = parseFloat(document.getElementById('flanger').value);
+        flangerLFO.frequency.value = flangerVal > 0 ? flangerVal : 0.1;
+        const flangerGain = audioCtx.createGain();
+        flangerGain.gain.value = 0.002;
+        if (flangerVal > 0) {
+            flangerLFO.connect(flangerGain);
+            flangerGain.connect(flangerDelay.delayTime);
+            flangerLFO.start();
+        }
+
+        // Master Gain
         gainNode = audioCtx.createGain();
         gainNode.gain.value = parseFloat(document.getElementById('volume').value);
-        
+
+        // Analyzer for VU
         analyzer = audioCtx.createAnalyser();
-        
-        source.connect(gainNode);
+        analyzer.fftSize = 256;
+
+        // Connection chain
+        source.connect(bassFilter);
+        bassFilter.connect(gainNode);
+
+        // Echo path
+        if (echoVal > 0) {
+            gainNode.connect(delayNode);
+            delayNode.connect(feedbackNode);
+            feedbackNode.connect(delayNode);
+            delayNode.connect(gainNode);
+        }
+
+        // Reverb path
+        if (reverbVal > 0) {
+            gainNode.connect(reverbDelay1);
+            reverbDelay1.connect(reverbDelay2);
+            reverbDelay2.connect(reverbGain);
+            reverbGain.connect(gainNode);
+        }
+
+        // Flanger path
+        if (flangerVal > 0) {
+            gainNode.connect(flangerDelay);
+            flangerDelay.connect(gainNode);
+        }
+
         gainNode.connect(analyzer);
         analyzer.connect(audioCtx.destination);
-        
+
         source.start(0, time);
         isPlaying = true;
         updateVU();
     }
 
+    // VU Meter
     function updateVU() {
         if (!isPlaying || !analyzer) return;
+
         const dataArray = new Uint8Array(analyzer.frequencyBinCount);
         analyzer.getByteFrequencyData(dataArray);
-        let sum = dataArray.reduce((a, b) => a + b, 0);
-        let avg = sum / dataArray.length;
-        document.getElementById('vuFill').style.width = (avg / 255 * 100) + '%';
+
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / dataArray.length;
+        const percent = (average / 255) * 100;
+
+        document.getElementById('vuFill').style.width = percent + '%';
+
         requestAnimationFrame(updateVU);
     }
 
-    document.getElementById('playBtn').onclick = () => {
-        if (isPlaying) {
-            source.stop();
-            isPlaying = false;
-        } else {
-            playFrom(0);
-        }
-    };
-
+    // Silence Detection (200ms)
     function detectSilence() {
-        if (!buffer) return showStatus('❌ Încarcă audio!');
-        showStatus('🔍 Detectez...', true);
-        
-        const data = buffer.getChannelData(0);
-        const step = 441; 
-        cuePoints = [];
-        
-        for (let i = 0; i < data.length; i += step) {
-            if (Math.abs(data[i]) < 0.02 && cuePoints.length < 12) {
-                let time = i / buffer.sampleRate;
-                if (cuePoints.length === 0 || time - cuePoints[cuePoints.length-1] > 2) {
-                    cuePoints.push(time);
+        if (!buffer) {
+            showStatus('❌ Încarcă un fișier audio mai întâi!');
+            return;
+        }
+
+        showStatus('🔍 Detectez pauzele...', true);
+
+        setTimeout(() => {
+            const data = buffer.getChannelData(0);
+            const sampleRate = buffer.sampleRate;
+            const threshold = 0.02;
+            const minSilenceSamples = 0.2 * sampleRate;
+            
+            cuePoints = [];
+            let silenceCount = 0;
+            let lastCueTime = -1;
+
+            for (let i = 0; i < data.length; i += 441) {
+                if (Math.abs(data[i]) < threshold) {
+                    silenceCount += 441;
+                } else {
+                    if (silenceCount >= minSilenceSamples) {
+                        const cueTime = (i - silenceCount / 2) / sampleRate;
+                        if (lastCueTime === -1 || cueTime - lastCueTime > 1.0) {
+                            cuePoints.push(cueTime);
+                            lastCueTime = cueTime;
+                            if (cuePoints.length >= 12) break;
+                        }
+                    }
+                    silenceCount = 0;
                 }
             }
-        }
-        renderCues();
-        showStatus(`✅ Gata!`);
+
+            if (cuePoints.length === 0) {
+                showStatus('⚠️ Nu s-au detectat pauze. Încearcă alt fișier.');
+            } else {
+                showStatus(`✅ Detectate ${cuePoints.length} puncte CUE!`);
+                renderCues();
+            }
+        }, 100);
     }
 
     function renderCues() {
         const container = document.getElementById('cueContainer');
         container.innerHTML = '';
-        cuePoints.forEach((t, i) => {
+        
+        cuePoints.forEach((time, i) => {
             const btn = document.createElement('button');
             btn.className = 'cue-btn';
-            btn.innerHTML = `CUE ${i+1}<br><small>${t.toFixed(1)}s</small>`;
-            btn.onclick = () => playFrom(t);
+            const mins = Math.floor(time / 60);
+            const secs = (time % 60).toFixed(1);
+            btn.innerHTML = `<div>CUE ${i + 1}</div><div class="cue-time">${mins}:${secs.padStart(4, '0')}</div>`;
+            btn.onclick = () => playFrom(time);
             container.appendChild(btn);
         });
     }
 
-    // Funcțiile de salvare rămân neschimbate...
-    function saveCueFile() { /* cod existent */ }
-    function exportZip() { /* cod existent */ }
+    // Play/Pause
+    document.getElementById('playBtn').onclick = () => {
+        if (!buffer) {
+            showStatus('❌ Încarcă audio mai întâi!');
+            return;
+        }
+        if (isPlaying && source) {
+            source.stop();
+            isPlaying = false;
+        } else {
+            playFrom(currentTime);
+        }
+    };
+
+    // Voice Preset
+    document.getElementById('voicePreset').onchange = (e) => {
+        document.getElementById('speed').value = e.target.value;
+        document.getElementById('speedVal').textContent = parseFloat(e.target.value).toFixed(2) + 'x';
+    };
+
+    // Keyboard shortcuts
+    window.onkeydown = (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            document.getElementById('playBtn').click();
+        }
+        const key = parseInt(e.key);
+        if (key >= 1 && key <= 9 && cuePoints[key - 1]) {
+            playFrom(cuePoints[key - 1]);
+        }
+    };
+
+    // Save .CUE file
+    function saveCueFile() {
+        if (!buffer || cuePoints.length === 0) {
+            showStatus('❌ Detectează CUE points mai întâi!');
+            return;
+        }
+
+        let content = `FILE "${fileName}" MP3\n`;
+        cuePoints.forEach((time, i) => {
+            const mins = Math.floor(time / 60);
+            const secs = Math.floor(time % 60);
+            const frames = Math.floor(((time % 60) - secs) * 75);
+            content += `  TRACK ${(i + 1).toString().padStart(2, '0')} AUDIO\n`;
+            content += `    INDEX 01 ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${frames.toString().padStart(2, '0')}\n`;
+        });
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'tracklist.cue';
+        link.click();
+        showStatus('✅ Fișier .CUE salvat!');
+    }
+
+    // Export ZIP with audio segments
+    async function exportZip() {
+        if (!buffer || cuePoints.length === 0) {
+            showStatus('❌ Detectează CUE points mai întâi!');
+            return;
+        }
+
+        showStatus('📦 Se generează ZIP...', true);
+
+        const zip = new JSZip();
+
+        for (let i = 0; i < cuePoints.length; i++) {
+            const startTime = cuePoints[i];
+            const endTime = cuePoints[i + 1] || buffer.duration;
+            const duration = endTime - startTime;
+
+            const segmentLength = Math.floor(duration * buffer.sampleRate);
+            const segmentBuffer = audioCtx.createBuffer(
+                buffer.numberOfChannels,
+                segmentLength,
+                buffer.sampleRate
+            );
+
+            for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+                const sourceData = buffer.getChannelData(ch);
+                const segmentData = segmentBuffer.getChannelData(ch);
+                const startSample = Math.floor(startTime * buffer.sampleRate);
+
+                for (let s = 0; s < segmentLength; s++) {
+                    segmentData[s] = sourceData[startSample + s] || 0;
+                }
+            }
+
+            const wavData = audioBufferToWav(segmentBuffer);
+            const blob = new Blob([wavData], { type: 'audio/wav' });
+            zip.file(`track_${(i + 1).toString().padStart(2, '0')}.wav`, blob);
+        }
+
+        zip.generateAsync({ type: 'blob' }).then(content => {
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'aimp_tracks.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus(`✅ ZIP generat cu ${cuePoints.length} track-uri!`);
+        });
+    }
+
+    // AudioBuffer to WAV
+    function audioBufferToWav(buf) {
+        const length = buf.length * buf.numberOfChannels * 2;
+        const wav = new ArrayBuffer(44 + length);
+        const view = new DataView(wav);
+
+        const writeString = (offset, string) => {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        };
+
+        writeString(0, 'RIFF');
+        view.setUint32(4, 36 + length, true);
+        writeString(8, 'WAVE');
+        writeString(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, buf.numberOfChannels, true);
+        view.setUint32(24, buf.sampleRate, true);
+        view.setUint32(28, buf.sampleRate * buf.numberOfChannels * 2, true);
+        view.setUint16(32, buf.numberOfChannels * 2, true);
+        view.setUint16(34, 16, true);
+        writeString(36, 'data');
+        view.setUint32(40, length, true);
+
+        const channels = [];
+        for (let i = 0; i < buf.numberOfChannels; i++) {
+            channels.push(buf.getChannelData(i));
+        }
+
+        let offset = 44;
+        for (let i = 0; i < buf.length; i++) {
+            for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+                const sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                offset += 2;
+            }
+        }
+
+        return wav;
+    }
 </script>
 </body>
 </html>
